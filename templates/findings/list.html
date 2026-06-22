@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Findings — {{ project.name }}{% endblock %}
+{% block content %}
+<div class="p-8">
+  <!-- Header -->
+  <div class="flex items-start justify-between mb-6">
+    <div>
+      <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
+        <a href="/projects/" class="hover:text-indigo-600">Projects</a>
+        <span>›</span>
+        <a href="/projects/{{ project.id }}" class="hover:text-indigo-600">{{ project.name }}</a>
+        <span>›</span>
+        <span>Findings</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900">Findings & Risk Register</h1>
+      <p class="text-slate-500 text-sm mt-1">{{ project.client.name }}</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="/assessments/{{ project.id }}" class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">← Assessment</a>
+      <a href="/findings/{{ project.id }}/new" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">+ Add Finding</a>
+      <a href="/reports/{{ project.id }}" class="bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">Generate Reports</a>
+    </div>
+  </div>
+
+  <!-- Severity summary cards -->
+  <div class="grid grid-cols-5 gap-3 mb-6">
+    {% for sev, label, cls, dot in [
+      ('critical','Critical','border-red-300 bg-red-50','bg-red-500'),
+      ('high','High','border-orange-300 bg-orange-50','bg-orange-500'),
+      ('medium','Medium','border-yellow-300 bg-yellow-50','bg-yellow-400'),
+      ('low','Low','border-blue-300 bg-blue-50','bg-blue-500'),
+      ('informational','Info','border-slate-300 bg-slate-50','bg-slate-400'),
+    ] %}
+    <a href="/findings/{{ project.id }}?severity={{ sev }}" class="rounded-xl border {{ cls }} p-4 text-center hover:shadow-sm transition-shadow {% if severity_filter == sev %}ring-2 ring-indigo-400{% endif %}">
+      <div class="flex items-center justify-center gap-1.5 mb-1">
+        <div class="w-2 h-2 rounded-full {{ dot }}"></div>
+        <div class="text-xs font-semibold text-slate-600">{{ label }}</div>
+      </div>
+      <div class="text-2xl font-bold text-slate-900">{{ sev_counts.get(sev, 0) }}</div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if severity_filter %}
+  <div class="mb-4 flex items-center gap-2 text-sm">
+    <span class="text-slate-500">Filtered by:</span>
+    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">{{ severity_filter | title }}</span>
+    <a href="/findings/{{ project.id }}" class="text-indigo-600 hover:underline">Clear filter</a>
+  </div>
+  {% endif %}
+
+  <!-- Findings Table -->
+  {% if findings %}
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-slate-50 border-b border-slate-200">
+          <th class="text-left px-4 py-3 font-semibold text-slate-700 w-20">Ref</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-700">Title</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-700 w-28">Severity</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-700 w-24">Risk Score</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-700 w-24">Priority</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-700 w-24">Effort</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-700 w-16">Type</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-700 w-28">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for finding in findings %}
+        <tr class="hover:bg-slate-50 transition-colors group">
+          <td class="px-4 py-3">
+            <span class="font-mono text-xs font-semibold text-slate-600">{{ finding.finding_ref or '—' }}</span>
+            {% if finding.control_ref %}
+            <div class="text-xs text-slate-400 font-mono">{{ finding.control_ref }}</div>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <div class="font-medium text-slate-900 leading-snug">{{ finding.title }}</div>
+            {% if finding.affected_systems %}
+            <div class="text-xs text-slate-400 mt-0.5 truncate max-w-xs">{{ finding.affected_systems }}</div>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <span class="text-xs font-semibold px-2 py-1 rounded-full border
+              {% if finding.severity == 'critical' %}severity-critical
+              {% elif finding.severity == 'high' %}severity-high
+              {% elif finding.severity == 'medium' %}severity-medium
+              {% elif finding.severity == 'low' %}severity-low
+              {% else %}severity-informational{% endif %}">
+              {{ finding.severity | title if finding.severity else '—' }}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            {% if finding.risk_score %}
+            <div class="flex items-center gap-1.5">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold
+                {% if finding.risk_score >= 20 %}bg-red-100 text-red-700
+                {% elif finding.risk_score >= 15 %}bg-orange-100 text-orange-700
+                {% elif finding.risk_score >= 8 %}bg-yellow-100 text-yellow-700
+                {% else %}bg-blue-100 text-blue-700{% endif %}">
+                {{ finding.risk_score | int }}
+              </div>
+              <div class="text-xs text-slate-400">{{ finding.likelihood }}×{{ finding.impact }}</div>
+            </div>
+            {% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-3">
+            {% if finding.remediation_priority %}
+            {% set p_labels = {1: 'Immediate', 2: 'Short-Term', 3: 'Medium', 4: 'Long-Term', 5: 'Strategic'} %}
+            <div class="text-xs">
+              <span class="font-semibold text-slate-700">P{{ finding.remediation_priority }}</span>
+              <span class="text-slate-400 ml-1">{{ p_labels.get(finding.remediation_priority, '') }}</span>
+            </div>
+            {% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-3">
+            {% if finding.remediation_effort %}
+            <span class="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+              {{ finding.remediation_effort | title }}
+            </span>
+            {% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <span class="text-xs {% if finding.is_confirmed %}text-slate-700{% else %}text-slate-400 italic{% endif %}">
+              {% if finding.is_confirmed %}Finding{% else %}Obs.{% endif %}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex gap-2 opacity-70 group-hover:opacity-100">
+              <a href="/findings/{{ project.id }}/{{ finding.id }}/edit" class="text-xs text-indigo-600 hover:underline">Edit</a>
+              <form method="post" action="/findings/{{ project.id }}/{{ finding.id }}/delete" onsubmit="return confirm('Delete this finding?')">
+                <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 text-center">
+    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+    </div>
+    <h3 class="text-slate-700 font-semibold mb-2">No findings yet</h3>
+    <p class="text-slate-500 text-sm mb-4">Complete the assessment to auto-generate findings, or add them manually.</p>
+    <div class="flex gap-3 justify-center">
+      <a href="/assessments/{{ project.id }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">Go to Assessment</a>
+      <a href="/findings/{{ project.id }}/new" class="border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">Add Finding Manually</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,475 @@
+{
+  "id": "nist_csf_2_0",
+  "name": "NIST Cybersecurity Framework 2.0",
+  "version": "2.0",
+  "framework": "NIST CSF",
+  "category": "Cybersecurity Framework",
+  "description": "The NIST Cybersecurity Framework (CSF) 2.0 provides a taxonomy of high-level cybersecurity outcomes that can be used by any organization — regardless of size, sector, or maturity — to better understand, assess, prioritize, and communicate cybersecurity efforts. CSF 2.0 introduces the GOVERN function and expands supply chain risk management guidance.",
+  "scoring_method": "maturity_0_4",
+  "functions": [
+    {
+      "id": "GV",
+      "name": "GOVERN",
+      "description": "The organization's cybersecurity risk management strategy, expectations, and policy are established, communicated, and monitored.",
+      "categories": [
+        {
+          "id": "GV.OC",
+          "name": "Organizational Context",
+          "description": "The circumstances — mission, stakeholder expectations, dependencies, and legal/regulatory requirements — surrounding the organization's cybersecurity risk decisions are understood.",
+          "controls": [
+            {
+              "id": "GV.OC-01",
+              "name": "Organizational mission and cybersecurity alignment",
+              "question": "Has the organization documented its mission, strategic objectives, and key stakeholders, and are cybersecurity risk decisions aligned with those priorities?",
+              "evidence_guidance": "Request: Mission statement, strategic plan, board meeting minutes referencing cybersecurity, organizational chart, stakeholder register.",
+              "why_it_matters": "Without understanding organizational context, cybersecurity investments may be misaligned with business priorities, resulting in gaps where it matters most or overspending where it does not.",
+              "common_weaknesses": ["Security program not tied to business strategy", "No documented mission or business objectives", "IT and security not represented in strategic planning"],
+              "remediation_guidance": "Facilitate a meeting between security leadership and executive management to document business objectives and map cybersecurity priorities accordingly. Produce a one-page alignment document reviewed annually.",
+              "risk_impact": "Misaligned security investment; critical business risks left unaddressed; security treated as an IT cost rather than a business enabler.",
+              "related_frameworks": ["ISO 27001 A.5.1", "CIS CSC 17.1", "CMMC CA.L2-3.12.1"],
+              "scoring_guidance": {"0": "No alignment exists", "1": "Informal/undocumented", "2": "Partially documented", "3": "Documented and communicated", "4": "Reviewed and updated annually with executive sign-off"}
+            },
+            {
+              "id": "GV.OC-02",
+              "name": "Legal and regulatory requirements understood",
+              "question": "Has the organization identified all applicable cybersecurity-related legal, regulatory, and contractual obligations (e.g., HIPAA, PCI DSS, CMMC, state breach notification laws)?",
+              "evidence_guidance": "Request: Compliance obligation register, contracts with security requirements, legal counsel opinion on applicable regulations, evidence of compliance reviews.",
+              "why_it_matters": "Non-compliance with legal and regulatory requirements can result in fines, litigation, loss of contracts, and reputational damage.",
+              "common_weaknesses": ["No formal compliance inventory", "Reliance on outdated understanding of requirements", "Contractual security requirements not flowed down to vendors"],
+              "remediation_guidance": "Develop a compliance obligations register. Assign ownership for each applicable regulation. Review annually or when entering new markets or signing new contracts.",
+              "risk_impact": "Regulatory fines, contract termination, data breach liability, reputational harm.",
+              "related_frameworks": ["ISO 27001 A.18.1", "NIST SP 800-171 3.12", "HIPAA 164.306"],
+              "scoring_guidance": {"0": "Not assessed", "1": "Some obligations known informally", "2": "Key regulations identified", "3": "Full register maintained", "4": "Register maintained and reviewed; compliance verified"}
+            },
+            {
+              "id": "GV.OC-03",
+              "name": "Critical outcomes and business services identified",
+              "question": "Has the organization identified its critical business processes, products, and services whose disruption would have the most significant impact?",
+              "evidence_guidance": "Request: Business impact analysis (BIA), critical asset list, service catalog, revenue-generating process documentation.",
+              "why_it_matters": "Without knowing what matters most, organizations cannot prioritize cybersecurity investments effectively or plan meaningful continuity strategies.",
+              "common_weaknesses": ["No formal BIA exists", "IT and business define 'critical' differently", "Critical services identified but not reviewed after organizational changes"],
+              "remediation_guidance": "Conduct a formal Business Impact Analysis. Identify recovery time objectives (RTOs) and recovery point objectives (RPOs) for critical services. Review after major organizational changes.",
+              "risk_impact": "Inability to prioritize incident response, prolonged outages of critical services, inability to meet continuity objectives.",
+              "related_frameworks": ["NIST SP 800-34", "ISO 22301", "CIS CSC 17"],
+              "scoring_guidance": {"0": "Not performed", "1": "Informal understanding", "2": "Partially documented", "3": "Formal BIA completed", "4": "BIA maintained, tested, and reviewed annually"}
+            }
+          ]
+        },
+        {
+          "id": "GV.RM",
+          "name": "Risk Management Strategy",
+          "description": "The organization's priorities, constraints, risk tolerance and appetite statements, and assumptions are established, communicated, and used to support operational risk decisions.",
+          "controls": [
+            {
+              "id": "GV.RM-01",
+              "name": "Risk management policy established",
+              "question": "Does the organization have a documented cybersecurity risk management policy that defines risk appetite, tolerance thresholds, and the overall risk management approach?",
+              "evidence_guidance": "Request: Risk management policy, risk appetite statement, board/executive approval documentation, risk register.",
+              "why_it_matters": "Without a defined risk appetite, security decisions are inconsistent and may not reflect the organization's actual willingness to accept risk.",
+              "common_weaknesses": ["No formal risk policy", "Risk appetite undefined or not communicated to staff", "Risk decisions made ad hoc without consistent criteria"],
+              "remediation_guidance": "Draft a risk management policy defining risk appetite (e.g., acceptable risk score thresholds), risk treatment options, and roles/responsibilities. Obtain executive approval and review annually.",
+              "risk_impact": "Inconsistent risk decisions, over- or under-investment in security, inability to communicate risk posture to leadership.",
+              "related_frameworks": ["ISO 27001 A.6.1.1", "NIST SP 800-39", "CMMC RM.L2-3.11.1"],
+              "scoring_guidance": {"0": "No policy", "1": "Informal approach", "2": "Draft policy exists", "3": "Approved and communicated policy", "4": "Policy reviewed annually with documented risk appetite"}
+            },
+            {
+              "id": "GV.RM-02",
+              "name": "Risk management roles and responsibilities",
+              "question": "Are roles and responsibilities for cybersecurity risk management clearly defined, assigned, and understood across the organization?",
+              "evidence_guidance": "Request: RACI matrix, job descriptions mentioning security responsibilities, security committee charter, evidence of security role assignments.",
+              "why_it_matters": "When nobody owns risk decisions, critical risks go unaddressed. Clear accountability ensures risks are identified, tracked, and treated.",
+              "common_weaknesses": ["Security responsibility assumed to be IT-only", "No named CISO or security lead", "Board not informed of significant cybersecurity risks"],
+              "remediation_guidance": "Define a RACI model for cybersecurity risk management. Designate a security lead (CISO, security manager, or vCISO). Establish a governance committee with executive membership.",
+              "risk_impact": "Unowned risks, slow incident response, inability to make coordinated risk decisions.",
+              "related_frameworks": ["NIST SP 800-37", "ISO 27001 A.6.1.1", "CIS CSC 17.2"],
+              "scoring_guidance": {"0": "No defined roles", "1": "Informal ownership", "2": "Key roles assigned", "3": "RACI documented and communicated", "4": "Roles formalized with performance metrics"}
+            }
+          ]
+        },
+        {
+          "id": "GV.PO",
+          "name": "Policies, Processes, and Procedures",
+          "description": "Organizational cybersecurity policies and procedures are established, communicated, and enforced.",
+          "controls": [
+            {
+              "id": "GV.PO-01",
+              "name": "Cybersecurity policy suite exists",
+              "question": "Does the organization maintain an up-to-date suite of cybersecurity policies covering at minimum: acceptable use, access control, password management, incident response, data classification, and vendor management?",
+              "evidence_guidance": "Request: Policy library or index, individual policy documents, policy review dates and approvals, evidence of employee acknowledgment.",
+              "why_it_matters": "Policies establish the rules of the road for cybersecurity. Without them, employees have no clear guidance, and auditors have no baseline to measure against.",
+              "common_weaknesses": ["Policies exist but are outdated (> 2 years old)", "Policies not reviewed after significant changes", "Staff unaware policies exist", "No employee acknowledgment process"],
+              "remediation_guidance": "Develop a policy library covering the core cybersecurity domains. Establish an annual review cycle. Require employee acknowledgment via HR or LMS system.",
+              "risk_impact": "Non-compliance, inconsistent security practices, regulatory violations, inability to hold employees accountable for security incidents.",
+              "related_frameworks": ["ISO 27001 A.5.1", "NIST SP 800-171 3.12.4", "CIS CSC 17.1", "CMMC AC.L1-3.1.1"],
+              "scoring_guidance": {"0": "No policies", "1": "1-2 informal policies", "2": "Core policies exist but outdated", "3": "Current policies with annual review", "4": "Comprehensive policy suite, acknowledged by all staff, reviewed and updated"}
+            },
+            {
+              "id": "GV.PO-02",
+              "name": "Cybersecurity roles in HR processes",
+              "question": "Are cybersecurity requirements integrated into HR processes including hiring background checks, onboarding training, role changes, and offboarding access revocation?",
+              "evidence_guidance": "Request: HR onboarding checklist, offboarding checklist showing access revocation steps, background check policy, security awareness training completion records.",
+              "why_it_matters": "The majority of data breaches involve an insider element. Integrating security into HR processes reduces the risk of malicious or negligent insider threats.",
+              "common_weaknesses": ["Access not revoked promptly upon termination", "No background checks for sensitive roles", "Security training not included in onboarding", "Role change access reviews not performed"],
+              "remediation_guidance": "Integrate security checkpoints into all HR lifecycle processes. Implement automated offboarding triggers that flag IT for immediate access revocation. Require security training within 30 days of hire.",
+              "risk_impact": "Unauthorized access by former employees, malicious insider risk, regulatory violations, data exposure.",
+              "related_frameworks": ["ISO 27001 A.6.1", "NIST SP 800-171 3.9.1", "CIS CSC 5", "CMMC PS.L2-3.9.2"],
+              "scoring_guidance": {"0": "No integration", "1": "Ad hoc", "2": "Some integration", "3": "Formal integration with documented procedures", "4": "Fully automated with audit trails"}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ID",
+      "name": "IDENTIFY",
+      "description": "The organization's current cybersecurity risks are understood.",
+      "categories": [
+        {
+          "id": "ID.AM",
+          "name": "Asset Management",
+          "description": "Assets (data, hardware, software, systems, and facilities) that enable the organization to achieve business purposes are identified and managed consistent with their relative importance to organizational objectives and risk strategy.",
+          "controls": [
+            {
+              "id": "ID.AM-01",
+              "name": "Hardware asset inventory",
+              "question": "Does the organization maintain an accurate and current inventory of all hardware assets (workstations, servers, network devices, mobile devices, IoT) authorized to connect to the network?",
+              "evidence_guidance": "Request: Asset inventory spreadsheet or CMDB, network discovery scan results, MDM enrollment list, procurement records.",
+              "why_it_matters": "You cannot protect what you don't know exists. Unmanaged devices are common entry points for attackers.",
+              "common_weaknesses": ["Inventory is manual and inaccurate", "Shadow IT devices not included", "No process to add/remove devices from inventory", "IoT/OT devices excluded"],
+              "remediation_guidance": "Deploy a network discovery tool (e.g., Nmap, Lansweeper, or an agent-based solution). Establish a process to update the inventory when devices are provisioned or decommissioned.",
+              "risk_impact": "Unpatched, unmanaged devices become attack vectors; inability to respond to incidents affecting unknown assets.",
+              "related_frameworks": ["CIS CSC 1", "ISO 27001 A.8.1", "NIST SP 800-171 3.4.1", "CMMC CM.L2-3.4.1"],
+              "scoring_guidance": {"0": "No inventory", "1": "Partial manual list", "2": "Most assets inventoried", "3": "Comprehensive inventory with automated discovery", "4": "Real-time inventory with automated reconciliation and alerting for unauthorized devices"}
+            },
+            {
+              "id": "ID.AM-02",
+              "name": "Software asset inventory",
+              "question": "Does the organization maintain an inventory of authorized software applications, including versions, vendors, and end-of-life status?",
+              "evidence_guidance": "Request: Software license inventory, approved software list, patch management reports showing installed software, MDM/EDR software inventory.",
+              "why_it_matters": "Unauthorized software introduces vulnerabilities and licensing risk. Untracked software cannot be patched or monitored for exploits.",
+              "common_weaknesses": ["No approved software list", "Unauthorized tools installed by employees", "End-of-life software still in use", "No process to track SaaS subscriptions"],
+              "remediation_guidance": "Implement application whitelisting or maintain an approved software list. Use endpoint management tools to audit installed software. Flag unsupported/EOL software for removal or compensating controls.",
+              "risk_impact": "Unpatched vulnerabilities, malware from unauthorized software, shadow IT data exposure.",
+              "related_frameworks": ["CIS CSC 2", "ISO 27001 A.8.1.2", "NIST SP 800-171 3.4.6"],
+              "scoring_guidance": {"0": "No inventory", "1": "High-level list only", "2": "Most software tracked", "3": "Full inventory with versions", "4": "Automated inventory with EOL monitoring and unauthorized software alerting"}
+            },
+            {
+              "id": "ID.AM-05",
+              "name": "Data classification and sensitivity labeling",
+              "question": "Has the organization implemented a data classification scheme that categorizes data by sensitivity (e.g., Public, Internal, Confidential, Restricted) and applied appropriate handling requirements to each tier?",
+              "evidence_guidance": "Request: Data classification policy, examples of labeled documents/emails, data flow diagrams, data inventory by classification tier.",
+              "why_it_matters": "Without knowing what data is sensitive and where it lives, organizations cannot apply proportionate security controls, leading to both over- and under-protection.",
+              "common_weaknesses": ["No classification scheme defined", "Classification defined but not applied in practice", "Sensitive data discovered in unexpected locations (e.g., email, shared drives)"],
+              "remediation_guidance": "Define a data classification scheme with 3–4 tiers. Train employees on how to classify and handle each tier. Implement technical controls (DLP, labeling tools) to enforce classification.",
+              "risk_impact": "Sensitive data exposed in inappropriate locations, inability to respond proportionately to data breaches, regulatory non-compliance.",
+              "related_frameworks": ["ISO 27001 A.8.2", "NIST SP 800-171 3.1.3", "CIS CSC 3.1"],
+              "scoring_guidance": {"0": "No classification", "1": "Informal categorization", "2": "Policy defined but inconsistently applied", "3": "Policy applied with spot-check verification", "4": "Technical enforcement via DLP and labeling tools"}
+            }
+          ]
+        },
+        {
+          "id": "ID.RA",
+          "name": "Risk Assessment",
+          "description": "The cybersecurity risk to the organization, assets, and individuals is understood by the organization.",
+          "controls": [
+            {
+              "id": "ID.RA-01",
+              "name": "Vulnerability identification process",
+              "question": "Does the organization conduct regular vulnerability assessments or scans of IT systems to identify security weaknesses?",
+              "evidence_guidance": "Request: Vulnerability scan reports (last 3–6 months), scan schedule, scan tool documentation, evidence of remediation tracking.",
+              "why_it_matters": "Unidentified vulnerabilities are routinely exploited by attackers. Regular scanning catches known weaknesses before threat actors do.",
+              "common_weaknesses": ["No scanning performed", "Scans infrequent (< quarterly)", "Scans performed but results not acted upon", "Scan scope excludes key systems"],
+              "remediation_guidance": "Deploy a vulnerability scanner (e.g., Tenable Nessus, Qualys, Rapid7). Scan all in-scope assets at least quarterly. Track and remediate findings by severity within defined SLAs.",
+              "risk_impact": "Known vulnerabilities exploited; delayed patch cycles; compliance failure (PCI DSS, HIPAA require regular scanning).",
+              "related_frameworks": ["CIS CSC 7", "NIST SP 800-171 3.11.2", "PCI DSS 11.3", "CMMC CA.L2-3.12.2"],
+              "scoring_guidance": {"0": "No scanning", "1": "Ad hoc scanning", "2": "Periodic scanning (annually)", "3": "Quarterly scans with tracking", "4": "Continuous scanning with SLA-based remediation"}
+            },
+            {
+              "id": "ID.RA-05",
+              "name": "Threat intelligence integration",
+              "question": "Does the organization subscribe to and act on relevant threat intelligence sources (e.g., CISA advisories, ISACs, vendor security bulletins) to understand emerging threats?",
+              "evidence_guidance": "Request: Threat intelligence subscriptions, evidence of threat alerts being reviewed, patching triggered by threat intel, incident response triggered by threat intel.",
+              "why_it_matters": "Threat intelligence provides advance warning of emerging attack techniques, enabling proactive defenses rather than reactive response.",
+              "common_weaknesses": ["No threat intelligence subscriptions", "Alerts received but not acted on", "Intelligence not contextualized for the organization's environment"],
+              "remediation_guidance": "Subscribe to CISA alerts, vendor security bulletins, and an industry ISAC (if applicable). Assign someone to review and triage alerts weekly. Establish a process to accelerate patching when active exploitation is confirmed.",
+              "risk_impact": "Late awareness of active attacks; known exploits used against your organization while patches were available.",
+              "related_frameworks": ["CIS CSC 7.7", "NIST SP 800-150", "ISO 27001 A.6.1.4"],
+              "scoring_guidance": {"0": "No threat intel", "1": "Informal awareness", "2": "Basic subscriptions (CISA alerts)", "3": "Multiple sources reviewed regularly", "4": "Structured threat intel program with contextualization and action tracking"}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PR",
+      "name": "PROTECT",
+      "description": "Safeguards to manage the organization's cybersecurity risks are used.",
+      "categories": [
+        {
+          "id": "PR.AA",
+          "name": "Identity Management, Authentication, and Access Control",
+          "description": "Access to physical and logical assets is limited to authorized users, services, and hardware and managed commensurate with the assessed risk.",
+          "controls": [
+            {
+              "id": "PR.AA-01",
+              "name": "Identity and credential management",
+              "question": "Does the organization manage identities and credentials for all users, services, and systems including provisioning, periodic review, and timely deprovisioning?",
+              "evidence_guidance": "Request: User account audit report, access provisioning procedures, access review records (quarterly or semi-annual), deprovisioning logs, Active Directory or IdP export.",
+              "why_it_matters": "Orphaned accounts, stale credentials, and over-privileged users are among the most commonly exploited attack vectors.",
+              "common_weaknesses": ["Terminated employee accounts not disabled promptly", "No periodic access review", "Shared/generic accounts in use", "Service accounts with excessive privilege"],
+              "remediation_guidance": "Implement an identity lifecycle management process. Conduct access reviews at least semi-annually. Disable accounts within 24 hours of termination. Eliminate shared accounts.",
+              "risk_impact": "Unauthorized access, credential theft, insider threat exploitation of orphaned accounts.",
+              "related_frameworks": ["CIS CSC 5", "NIST SP 800-171 3.1.1", "CMMC AC.L1-3.1.1", "ISO 27001 A.9.2"],
+              "scoring_guidance": {"0": "No process", "1": "Informal/ad hoc", "2": "Documented process, inconsistently followed", "3": "Consistent process with periodic reviews", "4": "Automated lifecycle management with real-time deprovisioning"}
+            },
+            {
+              "id": "PR.AA-02",
+              "name": "Multi-factor authentication (MFA)",
+              "question": "Is multi-factor authentication (MFA) required for all remote access, cloud services, privileged accounts, and email — and is it enforced technically rather than by policy alone?",
+              "evidence_guidance": "Request: MFA configuration screenshots, Conditional Access or similar policy exports, VPN configuration, MFA enrollment reports, exceptions list with approval.",
+              "why_it_matters": "MFA is the single most effective control against credential theft and account takeover. The vast majority of breaches involving stolen credentials would have been prevented by MFA.",
+              "common_weaknesses": ["MFA enabled but not enforced (user can bypass)", "MFA not required for privileged accounts", "Legacy authentication protocols (SMTP AUTH, basic auth) bypass MFA", "SMS-only MFA for high-risk accounts"],
+              "remediation_guidance": "Enforce MFA via Conditional Access (Azure AD) or equivalent for all users. Prioritize privileged accounts and remote access. Block legacy authentication protocols. Consider phishing-resistant MFA (FIDO2/hardware keys) for admin accounts.",
+              "risk_impact": "Account takeover, business email compromise, ransomware deployment via stolen credentials.",
+              "related_frameworks": ["CIS CSC 6.3", "NIST SP 800-171 3.5.3", "CMMC IA.L2-3.5.3", "HIPAA (addressable)", "PCI DSS 8.4"],
+              "scoring_guidance": {"0": "No MFA", "1": "MFA available but optional", "2": "MFA enforced for some users/services", "3": "MFA enforced for all remote access and privileged accounts", "4": "MFA enforced for all users with phishing-resistant MFA for privileged accounts; legacy auth blocked"}
+            },
+            {
+              "id": "PR.AA-03",
+              "name": "Least privilege and need-to-know",
+              "question": "Are user access rights granted based on least privilege and business need-to-know, and are privileged rights managed separately from standard user accounts?",
+              "evidence_guidance": "Request: Role-based access control documentation, privileged access management (PAM) tool evidence, admin account audit, evidence of access request/approval workflow.",
+              "why_it_matters": "Over-privileged accounts dramatically increase the blast radius of any account compromise. Least privilege limits lateral movement and data access if an account is breached.",
+              "common_weaknesses": ["Domain admin accounts used for daily tasks", "No separation of admin and user accounts", "Access accumulated over time without periodic review", "No PAM solution for privileged accounts"],
+              "remediation_guidance": "Implement RBAC. Require all administrators to use separate privileged accounts for admin tasks. Deploy a PAM solution for privileged credential management. Conduct quarterly privilege reviews.",
+              "risk_impact": "Lateral movement by attackers, widespread data access from a single compromised account, ransomware spreading with admin rights.",
+              "related_frameworks": ["CIS CSC 5.4", "NIST SP 800-171 3.1.6", "ISO 27001 A.9.2.3", "CMMC AC.L1-3.1.2"],
+              "scoring_guidance": {"0": "No controls", "1": "Informal separation", "2": "Admin accounts exist but PAM not used", "3": "RBAC implemented with separate admin accounts", "4": "PAM solution in use; just-in-time access for privileged operations"}
+            }
+          ]
+        },
+        {
+          "id": "PR.DS",
+          "name": "Data Security",
+          "description": "Data are managed consistent with the organization's risk strategy to protect the confidentiality, integrity, and availability of information.",
+          "controls": [
+            {
+              "id": "PR.DS-01",
+              "name": "Data-at-rest encryption",
+              "question": "Is sensitive data encrypted at rest on all endpoints, servers, and storage systems, including portable media?",
+              "evidence_guidance": "Request: Endpoint encryption policy, BitLocker or FileVault deployment reports, server/database encryption configuration, portable media encryption policy and evidence.",
+              "why_it_matters": "Encryption at rest renders stolen data unreadable, protecting against physical theft of devices and storage media.",
+              "common_weaknesses": ["Full-disk encryption not deployed on laptops", "Portable media unencrypted", "Database encryption not enabled", "Keys poorly managed or stored alongside data"],
+              "remediation_guidance": "Enable BitLocker (Windows) or FileVault (Mac) on all endpoints. Enforce removable media encryption. Enable TDE on databases containing sensitive data. Implement proper key management.",
+              "risk_impact": "Loss or theft of unencrypted devices exposes sensitive data; regulatory fines (HIPAA breach safe harbor requires encryption).",
+              "related_frameworks": ["CIS CSC 3.6", "NIST SP 800-171 3.13.16", "HIPAA 164.312(a)(2)(iv)", "CMMC SC.L2-3.13.16"],
+              "scoring_guidance": {"0": "No encryption", "1": "Partial (some devices)", "2": "Most endpoints encrypted", "3": "All endpoints and key servers encrypted", "4": "All data-at-rest encrypted including databases; key management solution in use"}
+            },
+            {
+              "id": "PR.DS-02",
+              "name": "Data-in-transit encryption",
+              "question": "Is all sensitive data encrypted in transit using current TLS standards, and are insecure protocols (Telnet, FTP, HTTP, SNMPv1/v2) disabled or restricted?",
+              "evidence_guidance": "Request: Network scan results showing open ports/protocols, TLS configuration assessment, web application SSL labs results, VPN configuration, internal traffic encryption evidence.",
+              "why_it_matters": "Unencrypted data in transit is trivially intercepted on the network, exposing credentials, PII, and business data.",
+              "common_weaknesses": ["HTTP used instead of HTTPS for internal applications", "Outdated TLS versions (TLS 1.0/1.1) still enabled", "Telnet/FTP still in use", "Email transmitted without TLS enforcement"],
+              "remediation_guidance": "Enforce HTTPS/TLS 1.2+ on all web applications. Disable Telnet, FTP, SNMPv1/v2, and other insecure protocols. Enforce STARTTLS or SMTP over TLS for email. Scan for weak cipher suites.",
+              "risk_impact": "Man-in-the-middle attacks, credential interception, sensitive data exposure on the wire.",
+              "related_frameworks": ["CIS CSC 3.10", "NIST SP 800-171 3.13.8", "PCI DSS 4.2.1", "CMMC SC.L2-3.13.8"],
+              "scoring_guidance": {"0": "No encryption in transit", "1": "Some TLS deployed", "2": "Most traffic encrypted", "3": "TLS enforced for all external traffic; insecure protocols disabled", "4": "TLS 1.2+ enforced everywhere; internal traffic also encrypted; cipher suites hardened"}
+            }
+          ]
+        },
+        {
+          "id": "PR.PS",
+          "name": "Platform Security",
+          "description": "The hardware, software, and services of physical and virtual platforms are managed consistent with the organization's risk strategy.",
+          "controls": [
+            {
+              "id": "PR.PS-01",
+              "name": "Security configuration and hardening",
+              "question": "Are systems configured securely using industry-standard hardening benchmarks (e.g., CIS Benchmarks, DISA STIGs), with unnecessary services disabled and default credentials changed?",
+              "evidence_guidance": "Request: Configuration management policy, CIS benchmark scan results, baseline configuration templates, evidence of hardening on servers/workstations/network devices.",
+              "why_it_matters": "Default and misconfigured systems are among the most exploited targets. Hardening removes unnecessary attack surface.",
+              "common_weaknesses": ["Default credentials not changed on network equipment", "Unnecessary services running on servers", "No documented baseline configuration", "Cloud services deployed with default (insecure) settings"],
+              "remediation_guidance": "Adopt CIS Benchmarks as configuration baselines. Use configuration management tools to enforce baselines. Scan for drift from approved configurations regularly.",
+              "risk_impact": "Default credential exploitation, unauthorized access via unnecessary services, misconfigured cloud services exposing data.",
+              "related_frameworks": ["CIS CSC 4", "NIST SP 800-171 3.4.2", "CMMC CM.L2-3.4.2", "PCI DSS 2.2"],
+              "scoring_guidance": {"0": "No hardening", "1": "Ad hoc hardening", "2": "Documented baselines for some systems", "3": "CIS Benchmarks applied to key systems", "4": "Automated baseline enforcement and drift detection across all systems"}
+            },
+            {
+              "id": "PR.PS-02",
+              "name": "Patch and vulnerability management",
+              "question": "Does the organization have a documented patch management process with defined timelines for applying critical, high, and routine patches across all systems?",
+              "evidence_guidance": "Request: Patch management policy, patch deployment reports (last 30/60/90 days), evidence of critical patch application timelines, exception process.",
+              "why_it_matters": "The vast majority of exploits target known, patchable vulnerabilities. Timely patching is the most effective technical control to prevent exploitation.",
+              "common_weaknesses": ["No defined patching SLAs", "Patching infrequent (> 30 days for critical)", "Critical systems excluded from patch management", "End-of-life systems that cannot be patched still in production"],
+              "remediation_guidance": "Establish patch SLAs: Critical (72 hours), High (14 days), Medium (30 days), Low (90 days). Deploy a patch management platform. Track compliance against SLAs. Compensating controls for systems that cannot be patched.",
+              "risk_impact": "Known vulnerability exploitation, ransomware deployment via unpatched systems, compliance failure.",
+              "related_frameworks": ["CIS CSC 7.4", "NIST SP 800-171 3.14.1", "PCI DSS 6.3.3", "CMMC SI.L1-3.14.1"],
+              "scoring_guidance": {"0": "No patch management", "1": "Ad hoc patching", "2": "Periodic patching without defined SLAs", "3": "Defined SLAs with tracking", "4": "Automated patch deployment with SLA compliance reporting and exception management"}
+            }
+          ]
+        },
+        {
+          "id": "PR.AT",
+          "name": "Awareness and Training",
+          "description": "The organization's personnel are provided with cybersecurity awareness and training so that they can perform their cybersecurity-related tasks.",
+          "controls": [
+            {
+              "id": "PR.AT-01",
+              "name": "Security awareness training",
+              "question": "Does the organization provide security awareness training to all employees at least annually, covering topics such as phishing, password hygiene, social engineering, and data handling?",
+              "evidence_guidance": "Request: Training completion records, training platform screenshots, training curriculum/syllabus, phishing simulation results.",
+              "why_it_matters": "Employees are the most commonly exploited attack vector. Training measurably reduces susceptibility to phishing and social engineering.",
+              "common_weaknesses": ["Training conducted only at onboarding", "Generic training not relevant to the organization", "Completion rates below 90%", "No phishing simulations"],
+              "remediation_guidance": "Implement annual security awareness training for all employees. Add role-specific training for high-risk roles (finance, executives, IT). Run quarterly phishing simulations with remedial training for clickers.",
+              "risk_impact": "Phishing susceptibility, BEC attacks, accidental data disclosure, malware infection from email attachments.",
+              "related_frameworks": ["CIS CSC 14", "NIST SP 800-171 3.2.1", "CMMC AT.L2-3.2.1", "HIPAA 164.308(a)(5)"],
+              "scoring_guidance": {"0": "No training", "1": "Informal/ad hoc", "2": "Annual training with < 80% completion", "3": "Annual training with > 90% completion and phishing simulations", "4": "Continuous training, role-specific modules, phishing simulations, metrics-driven improvement"}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DE",
+      "name": "DETECT",
+      "description": "Possible cybersecurity attacks and compromises are found and analyzed.",
+      "categories": [
+        {
+          "id": "DE.CM",
+          "name": "Continuous Monitoring",
+          "description": "Assets are monitored to find anomalies, indicators of compromise, and other potentially adverse events.",
+          "controls": [
+            {
+              "id": "DE.CM-01",
+              "name": "Network monitoring and anomaly detection",
+              "question": "Is network traffic monitored for anomalies, unauthorized connections, and indicators of compromise, and are alerts reviewed in a timely manner?",
+              "evidence_guidance": "Request: SIEM or network monitoring tool evidence, alert review logs, IDS/IPS configuration, network traffic reports, firewall log review evidence.",
+              "why_it_matters": "Most breaches go undetected for weeks or months. Network monitoring shortens the dwell time of attackers and enables faster containment.",
+              "common_weaknesses": ["Firewall logs not reviewed", "No SIEM or centralized logging", "Alerts generated but not reviewed", "No baseline of normal network behavior established"],
+              "remediation_guidance": "Implement a SIEM or at minimum centralized log management. Configure alerts for high-priority events. Assign responsibility for daily alert review. Establish network baselines to detect anomalous traffic.",
+              "risk_impact": "Late detection of breaches, extended attacker dwell time, inability to determine scope of incidents.",
+              "related_frameworks": ["CIS CSC 13", "NIST SP 800-171 3.14.6", "CMMC AU.L2-3.3.2", "PCI DSS 10.4"],
+              "scoring_guidance": {"0": "No monitoring", "1": "Basic firewall logging only", "2": "Centralized logging with manual review", "3": "SIEM with automated alerting and regular review", "4": "24/7 monitoring with SOC or MSSP; automated detection and response"}
+            },
+            {
+              "id": "DE.CM-06",
+              "name": "Endpoint detection and response (EDR)",
+              "question": "Are endpoint detection and response (EDR) or advanced antivirus/anti-malware solutions deployed on all endpoints and servers, with centralized management and monitoring?",
+              "evidence_guidance": "Request: EDR/AV deployment report, coverage percentage, recent alert/detection logs, centralized console screenshots, update status report.",
+              "why_it_matters": "Traditional signature-based antivirus misses modern malware and fileless attacks. EDR provides behavioral detection and forensic capability needed to detect and respond to advanced threats.",
+              "common_weaknesses": ["Legacy AV only — no behavioral detection", "Gaps in coverage (some endpoints unmanaged)", "EDR deployed but alerts not reviewed", "Outdated definitions"],
+              "remediation_guidance": "Deploy a next-gen EDR solution (CrowdStrike, SentinelOne, Microsoft Defender for Endpoint) on all endpoints and servers. Centrally manage and monitor detections. Ensure definitions and agent versions are current.",
+              "risk_impact": "Undetected malware, ransomware deployment, inability to perform forensic investigation post-incident.",
+              "related_frameworks": ["CIS CSC 10", "NIST SP 800-171 3.14.2", "CMMC SI.L1-3.14.2"],
+              "scoring_guidance": {"0": "No AV/EDR", "1": "Legacy AV only", "2": "Next-gen AV on most endpoints", "3": "EDR on all endpoints with centralized management", "4": "EDR with managed detection and response (MDR); behavioral analytics in use"}
+            }
+          ]
+        },
+        {
+          "id": "DE.AE",
+          "name": "Adverse Event Analysis",
+          "description": "Anomalies, indicators of compromise, and other potentially adverse events are analyzed to characterize the events and detect cybersecurity incidents.",
+          "controls": [
+            {
+              "id": "DE.AE-02",
+              "name": "Security event correlation and analysis",
+              "question": "Does the organization have a defined process to analyze, correlate, and investigate security events to determine whether an incident has occurred?",
+              "evidence_guidance": "Request: SIEM correlation rule configuration, documented triage procedures, incident log entries showing event investigation, SOC playbooks.",
+              "why_it_matters": "Individual security alerts are often noise. Correlation and analysis of multiple events reveals patterns consistent with actual attacks.",
+              "common_weaknesses": ["No correlation rules in SIEM", "Individual alerts reviewed in isolation", "No documented triage process", "Alert fatigue due to high volume of untuned alerts"],
+              "remediation_guidance": "Develop correlation rules and use cases relevant to your environment. Create documented triage playbooks. Tune alerts to reduce false positives. Assign dedicated analyst time for investigation.",
+              "risk_impact": "Missed indicators of attack, inability to detect multi-stage attacks, slow incident response.",
+              "related_frameworks": ["CIS CSC 13.6", "NIST SP 800-61", "ISO 27001 A.16.1.2"],
+              "scoring_guidance": {"0": "No analysis process", "1": "Ad hoc investigation", "2": "Some correlation rules", "3": "Documented process with correlation and regular review", "4": "Mature detection engineering with tuned use cases and metrics"}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "RS",
+      "name": "RESPOND",
+      "description": "Actions regarding a detected cybersecurity incident are taken.",
+      "categories": [
+        {
+          "id": "RS.MA",
+          "name": "Incident Management",
+          "description": "Responses to detected cybersecurity incidents are managed.",
+          "controls": [
+            {
+              "id": "RS.MA-01",
+              "name": "Incident response plan",
+              "question": "Does the organization have a documented, tested incident response plan that defines roles, escalation procedures, external notification requirements, and containment/eradication steps?",
+              "evidence_guidance": "Request: Incident response plan document, most recent IRP test/tabletop exercise record, contact list for incident response team, evidence of IRP update after incidents.",
+              "why_it_matters": "Without a plan, organizations improvise during high-stress incidents, leading to errors, delays, and failure to meet legal notification requirements.",
+              "common_weaknesses": ["No written IRP", "IRP exists but never tested", "Contact lists outdated", "Notification requirements not included", "Roles not pre-assigned"],
+              "remediation_guidance": "Develop an IRP aligned with NIST SP 800-61. Define the incident response team, escalation paths, and external contacts (legal, insurer, breach counsel, law enforcement). Test via annual tabletop exercise.",
+              "risk_impact": "Slow, disorganized incident response; missed legal notification deadlines; extended downtime; regulatory penalties.",
+              "related_frameworks": ["NIST SP 800-61", "ISO 27001 A.16", "CIS CSC 17", "CMMC IR.L2-3.6.1", "HIPAA 164.308(a)(6)"],
+              "scoring_guidance": {"0": "No IRP", "1": "Informal response procedures", "2": "Written IRP not tested", "3": "Written IRP with annual tabletop exercise", "4": "IRP tested annually; lessons learned incorporated; notification procedures verified"}
+            },
+            {
+              "id": "RS.MA-04",
+              "name": "Incident classification and escalation",
+              "question": "Does the organization use a defined severity classification scheme for incidents, with documented escalation procedures and decision criteria for involving executive management and legal counsel?",
+              "evidence_guidance": "Request: Incident severity matrix, escalation procedures, evidence of escalation in recent incidents, executive communication templates.",
+              "why_it_matters": "Improper escalation — especially failing to notify executives or legal counsel of significant incidents — can result in missed notification deadlines and compounded legal exposure.",
+              "common_weaknesses": ["All incidents treated the same regardless of severity", "No criteria for escalating to legal or executives", "PR/communications team not included in escalation plan"],
+              "remediation_guidance": "Define a severity matrix (P1–P4) with explicit escalation thresholds. Document who to call at each severity level, including legal counsel, cyber insurance carrier, and executives.",
+              "risk_impact": "Under-response to serious incidents, missed regulatory notification deadlines, legal liability.",
+              "related_frameworks": ["NIST SP 800-61 Section 3.2", "ISO 27001 A.16.1.5", "CIS CSC 17.4"],
+              "scoring_guidance": {"0": "No classification", "1": "Informal severity labeling", "2": "Severity matrix defined", "3": "Severity matrix with documented escalation paths", "4": "Tested escalation procedures with defined SLAs for each severity level"}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "RC",
+      "name": "RECOVER",
+      "description": "Assets and operations affected by a cybersecurity incident are restored.",
+      "categories": [
+        {
+          "id": "RC.RP",
+          "name": "Incident Recovery Plan Execution",
+          "description": "Restoration activities are performed to ensure operational availability of systems and services affected by cybersecurity incidents.",
+          "controls": [
+            {
+              "id": "RC.RP-01",
+              "name": "Recovery plan exists and is tested",
+              "question": "Does the organization have a documented recovery plan that includes steps to restore systems and data following a cybersecurity incident, and has this plan been tested?",
+              "evidence_guidance": "Request: Business continuity plan, disaster recovery plan, most recent recovery test results, backup restoration test records.",
+              "why_it_matters": "Organizations that discover their recovery plan does not work during an active incident face catastrophic consequences. Testing reveals gaps before they matter.",
+              "common_weaknesses": ["No recovery plan beyond informal IT restoration", "Backup recovery not tested", "Recovery plan not updated after infrastructure changes", "Recovery time objectives not defined"],
+              "remediation_guidance": "Develop a recovery plan covering all critical systems with defined RTOs and RPOs. Test backup restoration quarterly. Conduct a full recovery test annually. Update the plan after major infrastructure changes.",
+              "risk_impact": "Extended downtime, data loss, business failure following a ransomware or major incident.",
+              "related_frameworks": ["NIST SP 800-34", "ISO 22301", "CIS CSC 11", "CMMC RE.L2-3.8.1"],
+              "scoring_guidance": {"0": "No plan", "1": "Informal recovery procedures", "2": "Written plan not tested", "3": "Written plan with annual test", "4": "Comprehensive BCP/DRP with quarterly backup tests and annual full-scale exercise"}
+            }
+          ]
+        },
+        {
+          "id": "RC.CO",
+          "name": "Incident Recovery Communication",
+          "description": "Restoration activities are coordinated with internal and external parties.",
+          "controls": [
+            {
+              "id": "RC.CO-03",
+              "name": "Recovery communications",
+              "question": "Does the organization have documented communication procedures for notifying stakeholders, regulators, customers, and the public following a cybersecurity incident?",
+              "evidence_guidance": "Request: Communication plan, notification templates, regulatory notification procedures, PR/communications team integration in IRP.",
+              "why_it_matters": "Poor communication during or after an incident amplifies reputational damage and may violate legal notification requirements.",
+              "common_weaknesses": ["No communication plan", "Legal/PR not involved until late in incident response", "Notification templates not prepared in advance"],
+              "remediation_guidance": "Develop communication templates for regulatory notifications, customer notifications, and press statements. Pre-designate spokespeople. Include communications team in IRP. Review applicable notification timelines (e.g., GDPR 72-hour, state breach laws).",
+              "risk_impact": "Regulatory penalties for late notification, reputational damage from poor communication, loss of customer trust.",
+              "related_frameworks": ["NIST SP 800-61 Section 3.6", "GDPR Article 33-34", "ISO 27001 A.16.1.6"],
+              "scoring_guidance": {"0": "No plan", "1": "Informal communication approach", "2": "Basic notification procedures", "3": "Documented plan with templates and approved spokespeople", "4": "Tested communication plan with legal-verified notification timelines"}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

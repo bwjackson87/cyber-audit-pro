@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Settings — CyberAudit Pro{% endblock %}
+{% block content %}
+<div class="p-8 max-w-2xl">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">Settings</h1>
+    <p class="text-slate-500 text-sm mt-1">Configure default branding for reports and new projects.</p>
+  </div>
+
+  {% if request.query_params.get('saved') %}
+  <div class="mb-4 bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm font-medium">
+    ✓ Settings saved successfully.
+  </div>
+  {% endif %}
+
+  <form method="post" action="/settings/save" class="space-y-5">
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <h2 class="font-semibold text-slate-800">Consultant Branding</h2>
+      <p class="text-xs text-slate-500">These defaults populate new project forms. Each project can override them individually.</p>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Your Name</label>
+          <input type="text" name="consultant_name" value="{{ s.get('consultant_name', '') }}"
+                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="Jane Smith">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Title</label>
+          <input type="text" name="consultant_title" value="{{ s.get('consultant_title', '') }}"
+                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="Cybersecurity Consultant">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Firm / Company Name</label>
+          <input type="text" name="consultant_company" value="{{ s.get('consultant_company', '') }}"
+                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="Acme Security LLC">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" name="consultant_email" value="{{ s.get('consultant_email', '') }}"
+                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="jane@acmesecurity.com">
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      <h2 class="font-semibold text-slate-800 mb-1">Default Report Disclaimer</h2>
+      <p class="text-xs text-slate-500 mb-3">This appears on every report cover page. Customize to match your firm's standard language.</p>
+      <textarea name="default_disclaimer" rows="6"
+                class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ s.get('default_disclaimer', default_disclaimer) }}</textarea>
+      <button type="button" class="mt-2 text-xs text-slate-500 hover:text-indigo-600"
+              onclick="this.previousElementSibling.value = {{ default_disclaimer | tojson }}">Reset to default</button>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      <h2 class="font-semibold text-slate-800 mb-3">Data & Storage</h2>
+      <div class="space-y-3 text-sm text-slate-600">
+        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+          <span class="text-slate-400 mt-0.5">🗄</span>
+          <div>
+            <div class="font-medium text-slate-700">Local SQLite Database</div>
+            <div class="text-xs text-slate-500 mt-0.5">All data is stored in <code class="bg-white px-1 rounded border border-slate-200 text-xs">data/db/cyberaudit.db</code> — no cloud sync, no external services.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+          <span class="text-slate-400 mt-0.5">📁</span>
+          <div>
+            <div class="font-medium text-slate-700">Report Exports</div>
+            <div class="text-xs text-slate-500 mt-0.5">Generated reports are saved to the <code class="bg-white px-1 rounded border border-slate-200 text-xs">exports/</code> folder in the application directory.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+          <span class="mt-0.5">⚠️</span>
+          <div>
+            <div class="font-medium text-amber-800">Client Data Warning</div>
+            <div class="text-xs text-amber-700 mt-0.5">Assessment data contains sensitive client information. Secure this device with a strong password, enable disk encryption, and restrict access to authorized personnel only.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      <h2 class="font-semibold text-slate-800 mb-3">Severity Definitions</h2>
+      <div class="space-y-2">
+        {% for sev, desc, cls in [
+          ('Critical', 'Immediate exploitation possible; severe business impact; data breach likely if not addressed within days.', 'bg-red-50 border-red-200 text-red-800'),
+          ('High', 'Significant vulnerability; meaningful risk of compromise; remediate within 30 days.', 'bg-orange-50 border-orange-200 text-orange-800'),
+          ('Medium', 'Notable weakness; exploitable under certain conditions; remediate within 90 days.', 'bg-yellow-50 border-yellow-200 text-yellow-800'),
+          ('Low', 'Minor issue; limited exploitability or impact; remediate within 180 days.', 'bg-blue-50 border-blue-200 text-blue-800'),
+          ('Informational', 'Best-practice recommendation or observation; no immediate risk. Address as resources permit.', 'bg-slate-50 border-slate-200 text-slate-700'),
+        ] %}
+        <div class="flex items-start gap-3 p-3 rounded-lg border {{ cls }}">
+          <span class="font-bold text-xs w-24 flex-shrink-0 pt-0.5">{{ sev }}</span>
+          <span class="text-xs">{{ desc }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="text-xs text-slate-400 mt-3">These definitions appear in generated reports. They are currently read-only.</p>
+    </div>
+
+    <div class="flex gap-3">
+      <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">Save Settings</button>
+      <a href="/" class="px-5 py-2 rounded-lg text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

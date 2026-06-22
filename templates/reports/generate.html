@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Reports — {{ project.name }}{% endblock %}
+{% block content %}
+<div class="p-8 max-w-4xl">
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
+      <a href="/projects/{{ project.id }}" class="hover:text-indigo-600">{{ project.name }}</a>
+      <span>›</span><span>Reports</span>
+    </div>
+    <h1 class="text-2xl font-bold text-slate-900">Generate Reports</h1>
+    <p class="text-slate-500 text-sm mt-1">{{ project.client.name }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Report Generator -->
+    <div class="lg:col-span-2 space-y-4">
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 class="font-semibold text-slate-800 mb-1">Select Report</h2>
+        <p class="text-xs text-slate-500 mb-4">Choose a report type and output format, then click Generate.</p>
+
+        <form method="post" action="/reports/{{ project.id }}/generate" id="reportForm"
+              x-data="{reportType: 'full', format: 'docx', loading: false}"
+              @submit="loading=true">
+
+          <!-- Report Types -->
+          <div class="space-y-2 mb-5">
+            {% for key, title, desc in report_types %}
+            <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:border-indigo-300 cursor-pointer transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+              <input type="radio" name="report_type" value="{{ key }}" {% if key == 'full' %}checked{% endif %}
+                     x-model="reportType" class="mt-0.5 accent-indigo-600">
+              <div>
+                <div class="text-sm font-semibold text-slate-800">{{ title }}</div>
+                <div class="text-xs text-slate-500">{{ desc }}</div>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+
+          <!-- Format -->
+          <div class="mb-5">
+            <div class="text-sm font-medium text-slate-700 mb-2">Output Format</div>
+            <div class="flex gap-3">
+              {% for fmt, label, icon in [('docx','Word (.docx)','📝'),('pdf','PDF','📄'),('csv','CSV (Risk Register)','📊')] %}
+              <label class="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 cursor-pointer hover:border-indigo-300 transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                <input type="radio" name="format" value="{{ fmt }}" {% if fmt == 'docx' %}checked{% endif %}
+                       x-model="format" class="accent-indigo-600">
+                <span class="text-sm font-medium text-slate-700">{{ icon }} {{ label }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button type="submit" :disabled="loading"
+                  class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+            <span x-show="!loading">Generate & Download</span>
+            <span x-show="loading" class="flex items-center gap-2">
+              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Generating...
+            </span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Report descriptions -->
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-blue-800 mb-3">Report Contents</h3>
+        <div class="space-y-2 text-xs text-blue-700">
+          <div><strong>Full Report:</strong> Cover page, disclaimer, executive summary, scope, methodology, all findings by severity, risk register, remediation roadmap.</div>
+          <div><strong>Executive Summary:</strong> Cover page, scorecard, finding counts, scope — suitable for leadership briefings.</div>
+          <div><strong>Technical Findings:</strong> All finding details with current/required state, risk impact, and remediation steps.</div>
+          <div><strong>Risk Register:</strong> Tabular list of all findings with likelihood, impact, and risk scores.</div>
+          <div><strong>Remediation Roadmap:</strong> Prioritized action plan grouped by remediation priority.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export History + Project Summary -->
+    <div class="space-y-4">
+      <!-- Summary -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+        <h2 class="font-semibold text-slate-800 mb-3 text-sm uppercase tracking-wide text-slate-500">Project Summary</h2>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-slate-500">Client</span>
+            <span class="font-medium text-slate-800">{{ project.client.name }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Template</span>
+            <span class="font-medium text-slate-800 text-right text-xs">{{ project.template.framework if project.template else '—' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Score</span>
+            <span class="font-bold {% if (project.overall_score or 0) >= 80 %}text-green-600{% elif (project.overall_score or 0) >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+              {{ "%.1f"|format(project.overall_score or 0) }}%
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Maturity</span>
+            <span class="font-medium text-slate-800 text-xs text-right">{{ project.maturity_level or 'Not assessed' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Findings</span>
+            <span class="font-medium text-slate-800">{{ project.findings | length }}</span>
+          </div>
+          {% if project.consultant_name %}
+          <div class="flex justify-between">
+            <span class="text-slate-500">Consultant</span>
+            <span class="font-medium text-slate-800 text-right text-xs">{{ project.consultant_name }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if not project.executive_summary %}
+        <div class="mt-4 pt-4 border-t border-slate-100 text-xs text-yellow-700 bg-yellow-50 rounded-lg p-3">
+          <strong>Tip:</strong> Add an executive summary in
+          <a href="/projects/{{ project.id }}/edit" class="underline">project settings</a> to include it in reports.
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Export History -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+        <h2 class="font-semibold text-slate-800 mb-3 text-sm uppercase tracking-wide text-slate-500">Export History</h2>
+        {% if exports %}
+        <div class="space-y-2">
+          {% for export in exports[:10] %}
+          <div class="flex items-center justify-between text-xs">
+            <div>
+              <div class="font-medium text-slate-700">{{ export.report_type | replace('_',' ') | title }}</div>
+              <div class="text-slate-400">{{ export.format | upper }} · {{ export.generated_at.strftime('%b %d %H:%M') }}</div>
+            </div>
+            <a href="/reports/{{ project.id }}/download/{{ export.filepath.split('\\')[-1].split('/')[-1] }}"
+               class="text-indigo-600 hover:underline font-medium">↓</a>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-xs text-slate-400 italic">No reports generated yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

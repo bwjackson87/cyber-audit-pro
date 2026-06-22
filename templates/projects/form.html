@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}{% if action == 'edit' %}Edit Project{% else %}New Project{% endif %} — CyberAudit Pro{% endblock %}
+{% block content %}
+<div class="p-8 max-w-3xl">
+  <div class="mb-6">
+    <a href="/projects/" class="text-sm text-slate-500 hover:text-indigo-600">← Projects</a>
+    <h1 class="text-2xl font-bold text-slate-900 mt-2">
+      {% if action == 'edit' %}Edit Project{% else %}New Assessment Project{% endif %}
+    </h1>
+  </div>
+
+  <form method="post" action="{% if action == 'edit' %}/projects/{{ project.id }}/edit{% else %}/projects/new{% endif %}" class="space-y-6">
+
+    <!-- Section: Basic Info -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      <h2 class="font-semibold text-slate-800 mb-4">Project Details</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Project Name <span class="text-red-500">*</span></label>
+          <input type="text" name="name" required value="{{ project.name if project else '' }}"
+                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="e.g. Acme Corp — NIST CSF Assessment 2025">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Client <span class="text-red-500">*</span></label>
+            <select name="client_id" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="">Select client</option>
+              {% for client in clients %}
+              <option value="{{ client.id }}"
+                {% if project and project.client_id == client.id %}selected
+                {% elif selected_client and selected_client.id == client.id %}selected{% endif %}>
+                {{ client.name }}
+              </option>
+              {% endfor %}
+            </select>
+            <a href="/clients/new" class="text-xs text-indigo-500 hover:underline mt-1 inline-block">+ Add new client</a>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Assessment Framework <span class="text-red-500">*</span></label>
+            <select name="template_id" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="">Select template</option>
+              {% for tmpl in assessment_templates %}
+              <option value="{{ tmpl.id }}" {% if project and project.template_id == tmpl.id %}selected{% endif %}>
+                {{ tmpl.name }} {% if tmpl.version %}(v{{ tmpl.version }}){% endif %}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Assessment Date</label>
+            <input type="date" name="assessment_date"
+                   value="{{ project.assessment_date.strftime('%Y-%m-%d') if project and project.assessment_date else '' }}"
+                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          {% if action == 'edit' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+            <select name="status" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              {% for s, l in [('draft','Draft'),('in_progress','In Progress'),('review','Under Review'),('complete','Complete')] %}
+              <option value="{{ s }}" {% if project and project.status == s %}selected{% endif %}>{{ l }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Scope -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      <h2 class="font-semibold text-slate-800 mb-1">Scope & Methodology</h2>
+      <p class="text-xs text-slate-500 mb-4">This information appears in the report header and scoping section.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Scope</label>
+          <textarea name="scope" rows="3"
+                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Describe what systems, processes, and locations are in scope for this assessment...">{{ project.scope if project else '' }}</textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Out of Scope</label>
+          <textarea name="out_of_scope" rows="2"
+                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Explicitly excluded systems, locations, or processes...">{{ project.out_of_scope if project else '' }}</textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Methodology</label>
+          <textarea name="methodology" rows="2"
+                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Describe the assessment approach: interviews, documentation review, technical testing, observation...">{{ project.methodology if project else '' }}</textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Assumptions</label>
+            <textarea name="assumptions" rows="2"
+                      class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Key assumptions made during this assessment...">{{ project.assumptions if project else '' }}</textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Limitations</label>
+            <textarea name="limitations" rows="2"
+                      class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Constraints or limitations that affected this assessment...">{{ project.limitations if project else '' }}</textarea>
+          </div>
+        </div>
+        {% if action == 'edit' %}
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Executive Summary</label>
+          <textarea name="executive_summary" rows="5"
+                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="High-level narrative for the executive summary section of the report...">{{ project.executive_summary if project else '' }}</textarea>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Section: Consultant Info -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      <h2 class="font-semibold text-slate-800 mb-1">Consultant Information</h2>
+      <p class="text-xs text-slate-500 mb-4">Appears on the report cover page. Set defaults in <a href="/settings/" class="text-indigo-500 hover:underline">Settings</a>.</p>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Consultant Name</label>
+            <input type="text" name="consultant_name"
+                   value="{{ project.consultant_name if project else (default_consultant_name or '') }}"
+                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Title</label>
+            <input type="text" name="consultant_title"
+                   value="{{ project.consultant_title if project else (default_consultant_title or '') }}"
+                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   placeholder="Cybersecurity Consultant">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Consulting Firm</label>
+            <input type="text" name="consultant_company"
+                   value="{{ project.consultant_company if project else (default_consultant_company or '') }}"
+                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <input type="email" name="consultant_email"
+                   value="{{ project.consultant_email if project else (default_consultant_email or '') }}"
+                   class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Report Disclaimer</label>
+          <textarea name="report_disclaimer" rows="3"
+                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ project.report_disclaimer if project and project.report_disclaimer else (default_disclaimer or '') }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+        {% if action == 'edit' %}Save Changes{% else %}Create Project{% endif %}
+      </button>
+      <a href="{% if action == 'edit' %}/projects/{{ project.id }}{% else %}/projects/{% endif %}"
+         class="px-5 py-2 rounded-lg text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

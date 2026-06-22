@@ -1,0 +1,31 @@
+# Virtual environment
+venv/
+.venv/
+
+# PyInstaller build output
+dist/
+build/
+*.spec.bak
+
+# Runtime data (SQLite DB and generated reports)
+data/db/
+exports/
+*.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment / secrets
+.env
+*.env
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

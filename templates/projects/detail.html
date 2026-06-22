@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} — CyberAudit Pro{% endblock %}
+{% block content %}
+<div class="p-8">
+  <!-- Header -->
+  <div class="flex items-start justify-between mb-6">
+    <div>
+      <a href="/projects/" class="text-sm text-slate-500 hover:text-indigo-600">← Projects</a>
+      <h1 class="text-2xl font-bold text-slate-900 mt-1">{{ project.name }}</h1>
+      <div class="flex items-center gap-3 mt-1">
+        <a href="/clients/{{ project.client_id }}" class="text-sm text-slate-500 hover:text-indigo-600">{{ project.client.name }}</a>
+        {% if project.template %}<span class="text-slate-300">•</span><span class="text-sm text-slate-500">{{ project.template.framework }}</span>{% endif %}
+        {% if project.assessment_date %}<span class="text-slate-300">•</span><span class="text-sm text-slate-500">{{ project.assessment_date.strftime('%b %d, %Y') }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="flex gap-2 flex-shrink-0">
+      <a href="/assessments/{{ project.id }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+        Open Assessment
+      </a>
+      <a href="/projects/{{ project.id }}/edit" class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">Edit</a>
+      <form method="post" action="/projects/{{ project.id }}/delete" onsubmit="return confirm('Delete this project and all findings?')">
+        <button type="submit" class="bg-white border border-red-300 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Status bar -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-6 flex items-center gap-6">
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-semibold text-slate-500 uppercase">Status</span>
+      <span class="text-xs px-2 py-1 rounded-full font-medium
+        {% if project.status == 'complete' %}bg-green-100 text-green-700
+        {% elif project.status == 'review' %}bg-blue-100 text-blue-700
+        {% elif project.status == 'in_progress' %}bg-yellow-100 text-yellow-700
+        {% else %}bg-slate-100 text-slate-600{% endif %}">
+        {{ project.status | replace('_', ' ') | title }}
+      </span>
+    </div>
+    <div class="h-4 w-px bg-slate-200"></div>
+    <div>
+      <span class="text-xs font-semibold text-slate-500 uppercase">Score</span>
+      <span class="ml-2 text-sm font-bold {% if (project.overall_score or 0) >= 80 %}text-green-600{% elif (project.overall_score or 0) >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+        {{ "%.1f"|format(project.overall_score or 0) }}%
+      </span>
+    </div>
+    <div class="h-4 w-px bg-slate-200"></div>
+    <div>
+      <span class="text-xs font-semibold text-slate-500 uppercase">Maturity</span>
+      <span class="ml-2 text-sm text-slate-700">{{ project.maturity_level or 'Not assessed' }}</span>
+    </div>
+    <div class="h-4 w-px bg-slate-200"></div>
+    <div>
+      <span class="text-xs font-semibold text-slate-500 uppercase">Assessed</span>
+      <span class="ml-2 text-sm text-slate-700">{{ score_data.percent_complete }}%</span>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="flex-1 ml-4">
+      <div class="w-full bg-slate-100 rounded-full h-2">
+        <div class="bg-indigo-500 h-2 rounded-full transition-all" style="width: {{ score_data.percent_complete }}%"></div>
+      </div>
+      <div class="text-xs text-slate-400 mt-0.5">{{ score_data.percent_complete }}% of controls assessed</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Score Breakdown -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+      <h2 class="font-semibold text-slate-800 mb-4 text-sm uppercase tracking-wide text-slate-500">Control Status</h2>
+      <div class="space-y-2">
+        {% set counts = score_data.counts %}
+        {% for key, label, color in [
+          ('compliant', 'Compliant', 'bg-green-500'),
+          ('partial', 'Partial', 'bg-yellow-500'),
+          ('non_compliant', 'Non-Compliant', 'bg-red-500'),
+          ('na', 'Not Applicable', 'bg-slate-300'),
+          ('not_assessed', 'Not Assessed', 'bg-slate-200'),
+        ] %}
+        <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full {{ color }}"></div>
+            <span class="text-slate-600">{{ label }}</span>
+          </div>
+          <span class="font-semibold text-slate-800">{{ counts.get(key, 0) }}</span>
+        </div>
+        {% endfor %}
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-sm">
+          <span class="font-semibold text-slate-600">Total Controls</span>
+          <span class="font-bold text-slate-800">{{ counts.get('total', 0) }}</span>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 border-t border-slate-100">
+        <a href="/assessments/{{ project.id }}" class="w-full block text-center bg-indigo-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+          Continue Assessment →
+        </a>
+      </div>
+    </div>
+
+    <!-- Findings Summary -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-slate-800 text-sm uppercase tracking-wide text-slate-500">Findings</h2>
+        <a href="/findings/{{ project.id }}/new" class="text-xs text-indigo-600 hover:underline">+ Add</a>
+      </div>
+      <div class="space-y-2">
+        {% for sev, label, color in [
+          ('critical','Critical','text-red-600 bg-red-50 border-red-200'),
+          ('high','High','text-orange-600 bg-orange-50 border-orange-200'),
+          ('medium','Medium','text-yellow-600 bg-yellow-50 border-yellow-200'),
+          ('low','Low','text-blue-600 bg-blue-50 border-blue-200'),
+          ('informational','Informational','text-slate-500 bg-slate-50 border-slate-200'),
+        ] %}
+        {% set cnt = project.findings | selectattr('severity', 'equalto', sev) | list | length %}
+        <div class="flex items-center justify-between p-2 rounded-lg border {{ color }}">
+          <span class="text-xs font-semibold">{{ label }}</span>
+          <span class="text-sm font-bold">{{ cnt }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="mt-4">
+        <a href="/findings/{{ project.id }}" class="w-full block text-center border border-slate-300 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
+          View All Findings
+        </a>
+      </div>
+    </div>
+
+    <!-- Project Info & Reports -->
+    <div class="space-y-4">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+        <h2 class="font-semibold text-slate-800 mb-3 text-sm uppercase tracking-wide text-slate-500">Project Info</h2>
+        <div class="space-y-2 text-sm">
+          {% if project.consultant_name %}
+          <div><span class="text-slate-500">Consultant:</span> <span class="text-slate-800 ml-1">{{ project.consultant_name }}</span></div>
+          {% endif %}
+          {% if project.consultant_company %}
+          <div><span class="text-slate-500">Firm:</span> <span class="text-slate-800 ml-1">{{ project.consultant_company }}</span></div>
+          {% endif %}
+          {% if project.template %}
+          <div><span class="text-slate-500">Template:</span> <span class="text-slate-800 ml-1">{{ project.template.name }}</span></div>
+          {% endif %}
+          <div><span class="text-slate-500">Created:</span> <span class="text-slate-800 ml-1">{{ project.created_at.strftime('%b %d, %Y') }}</span></div>
+        </div>
+        {% if project.scope %}
+        <div class="mt-3 pt-3 border-t border-slate-100">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Scope</div>
+          <p class="text-xs text-slate-600 line-clamp-3">{{ project.scope }}</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+        <h2 class="font-semibold text-slate-800 mb-3 text-sm uppercase tracking-wide text-slate-500">Reports</h2>
+        <div class="space-y-2">
+          <a href="/reports/{{ project.id }}" class="flex items-center gap-2 text-sm text-slate-700 hover:text-indigo-600 transition-colors p-2 rounded-lg hover:bg-slate-50">
+            <span class="text-lg">📄</span>Generate Reports
+          </a>
+          <div class="text-xs text-slate-400 pl-8">DOCX, PDF, CSV exports</div>
+        </div>
+        {% if project.exports %}
+        <div class="mt-3 pt-3 border-t border-slate-100">
+          <div class="text-xs text-slate-500">Last export: {{ project.exports[-1].generated_at.strftime('%b %d, %Y') }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

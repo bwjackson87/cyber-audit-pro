@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}{% if action == 'edit' %}Edit Finding{% else %}New Finding{% endif %} — CyberAudit Pro{% endblock %}
+{% block content %}
+<div class="p-8 max-w-3xl">
+  <div class="mb-6">
+    <a href="/findings/{{ project.id }}" class="text-sm text-slate-500 hover:text-indigo-600">← Findings</a>
+    <h1 class="text-2xl font-bold text-slate-900 mt-2">
+      {% if action == 'edit' %}Edit Finding{% else %}New Finding{% endif %}
+    </h1>
+    <p class="text-slate-500 text-sm">{{ project.name }} — {{ project.client.name }}</p>
+  </div>
+
+  <form method="post" action="{% if action == 'edit' %}/findings/{{ project.id }}/{{ finding.id }}/edit{% else %}/findings/{{ project.id }}/new{% endif %}" class="space-y-5">
+
+    <!-- Core Info -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <h2 class="font-semibold text-slate-800">Finding Details</h2>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Title <span class="text-red-500">*</span></label>
+        <input type="text" name="title" required value="{{ finding.title if finding else '' }}"
+               class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+               placeholder="e.g. Multi-Factor Authentication Not Enforced for Remote Access">
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Severity <span class="text-red-500">*</span></label>
+          <select name="severity" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            {% for s in severity_options %}
+            <option value="{{ s }}" {% if finding and finding.severity == s %}selected{% endif %}>{{ s | title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Type</label>
+          <select name="finding_type" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="finding" {% if not finding or finding.finding_type == 'finding' %}selected{% endif %}>Finding</option>
+            <option value="observation" {% if finding and finding.finding_type == 'observation' %}selected{% endif %}>Observation</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Control Reference</label>
+          <input type="text" name="control_ref" value="{{ finding.control_ref if finding else '' }}"
+                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="e.g. GV.OC-01">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Affected Systems / Assets</label>
+        <input type="text" name="affected_systems" value="{{ finding.affected_systems if finding else '' }}"
+               class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+               placeholder="e.g. All remote users, VPN gateway, Active Directory">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
+        <textarea name="description" rows="3"
+                  class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Detailed description of what was observed and how it was identified...">{{ finding.description if finding else '' }}</textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Current State</label>
+          <textarea name="current_state" rows="2"
+                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="What was observed / current condition...">{{ finding.current_state if finding else '' }}</textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Required State</label>
+          <textarea name="required_state" rows="2"
+                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="What the control or process should look like...">{{ finding.required_state if finding else '' }}</textarea>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Risk Impact</label>
+        <textarea name="risk_impact" rows="2"
+                  class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Business and technical impact if this finding is not addressed...">{{ finding.risk_impact if finding else '' }}</textarea>
+      </div>
+
+      <div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+          <input type="checkbox" name="is_confirmed" value="true"
+                 {% if not finding or finding.is_confirmed %}checked{% endif %}
+                 class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+          <span>Confirmed finding (uncheck to mark as observation)</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Risk Scoring -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4" x-data="{
+      likelihood: {{ finding.likelihood or 3 }},
+      impact: {{ finding.impact or 3 }},
+      get riskScore() { return this.likelihood * this.impact; },
+      get riskLabel() {
+        const s = this.riskScore;
+        if (s >= 20) return 'Critical';
+        if (s >= 15) return 'High';
+        if (s >= 8) return 'Medium';
+        if (s >= 3) return 'Low';
+        return 'Informational';
+      },
+      get riskColor() {
+        const s = this.riskScore;
+        if (s >= 20) return 'text-red-600 bg-red-50';
+        if (s >= 15) return 'text-orange-600 bg-orange-50';
+        if (s >= 8) return 'text-yellow-600 bg-yellow-50';
+        return 'text-blue-600 bg-blue-50';
+      }
+    }">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-slate-800">Risk Scoring</h2>
+        <div class="flex items-center gap-3">
+          <div class="text-xs text-slate-500">Risk Score:</div>
+          <div class="text-2xl font-bold px-3 py-1 rounded-lg" :class="riskColor" x-text="riskScore"></div>
+          <div class="text-sm font-semibold" :class="riskColor" x-text="riskLabel"></div>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500">Risk Score = Likelihood (1–5) × Impact (1–5). Maximum = 25.</p>
+
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Likelihood <span x-text="'(' + likelihood + '/5)'" class="text-slate-400 font-normal"></span></label>
+          <input type="range" name="likelihood" min="1" max="5" x-model.number="likelihood"
+                 class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+          <div class="flex justify-between text-xs text-slate-400 mt-1">
+            <span>Rare</span><span>Unlikely</span><span>Possible</span><span>Likely</span><span>Almost Certain</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Impact <span x-text="'(' + impact + '/5)'" class="text-slate-400 font-normal"></span></label>
+          <input type="range" name="impact" min="1" max="5" x-model.number="impact"
+                 class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+          <div class="flex justify-between text-xs text-slate-400 mt-1">
+            <span>Minimal</span><span>Minor</span><span>Moderate</span><span>Major</span><span>Catastrophic</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Remediation -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <h2 class="font-semibold text-slate-800">Remediation</h2>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Recommendation</label>
+        <textarea name="recommendation" rows="3"
+                  class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="High-level recommendation for the executive audience...">{{ finding.recommendation if finding else '' }}</textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Remediation Detail</label>
+        <textarea name="remediation_detail" rows="3"
+                  class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Step-by-step technical remediation instructions...">{{ finding.remediation_detail if finding else '' }}</textarea>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Remediation Effort</label>
+          <select name="remediation_effort" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="low" {% if finding and finding.remediation_effort == 'low' %}selected{% endif %}>Low (&lt; 1 week)</option>
+            <option value="medium" {% if not finding or finding.remediation_effort == 'medium' %}selected{% endif %}>Medium (1–4 weeks)</option>
+            <option value="high" {% if finding and finding.remediation_effort == 'high' %}selected{% endif %}>High (&gt; 1 month)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Priority</label>
+          <select name="remediation_priority" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            {% for p, l in [(1,'P1 — Immediate (< 30 days)'),(2,'P2 — Short-Term (30–90 days)'),(3,'P3 — Medium-Term (90–180 days)'),(4,'P4 — Long-Term (180+ days)'),(5,'P5 — Strategic / Ongoing')] %}
+            <option value="{{ p }}" {% if finding and finding.remediation_priority == p %}selected{% elif not finding and p == 3 %}selected{% endif %}>{{ l }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Compensating Controls</label>
+          <input type="text" name="compensating_controls" value="{{ finding.compensating_controls if finding else '' }}"
+                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="Existing controls that partially mitigate risk">
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+        {% if action == 'edit' %}Save Changes{% else %}Add Finding{% endif %}
+      </button>
+      <a href="/findings/{{ project.id }}" class="px-5 py-2 rounded-lg text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

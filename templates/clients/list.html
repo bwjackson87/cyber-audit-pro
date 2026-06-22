@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Clients — CyberAudit Pro{% endblock %}
+{% block content %}
+<div class="p-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Clients</h1>
+      <p class="text-slate-500 text-sm mt-1">{{ clients | length }} client{% if clients | length != 1 %}s{% endif %}</p>
+    </div>
+    <a href="/clients/new" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+      + New Client
+    </a>
+  </div>
+
+  {% if clients %}
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-slate-50 border-b border-slate-200">
+          <th class="text-left px-6 py-3 font-semibold text-slate-700">Client Name</th>
+          <th class="text-left px-6 py-3 font-semibold text-slate-700">Industry</th>
+          <th class="text-left px-6 py-3 font-semibold text-slate-700">Contact</th>
+          <th class="text-left px-6 py-3 font-semibold text-slate-700">Projects</th>
+          <th class="text-left px-6 py-3 font-semibold text-slate-700">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for client in clients %}
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-6 py-4">
+            <a href="/clients/{{ client.id }}" class="font-semibold text-slate-900 hover:text-indigo-600">{{ client.name }}</a>
+            {% if client.website %}
+            <div class="text-xs text-slate-400">{{ client.website }}</div>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 text-slate-600">{{ client.industry or '—' }}</td>
+          <td class="px-6 py-4 text-slate-600">
+            {% set primary = client.contacts | selectattr('is_primary') | first %}
+            {% if primary %}
+              <div class="font-medium text-slate-700">{{ primary.name }}</div>
+              <div class="text-xs text-slate-400">{{ primary.email or primary.phone or '' }}</div>
+            {% elif client.email %}
+              {{ client.email }}
+            {% else %}—{% endif %}
+          </td>
+          <td class="px-6 py-4">
+            <span class="text-slate-700 font-medium">{{ client.projects | length }}</span>
+            {% if client.projects %}
+            <a href="/projects/new?client_id={{ client.id }}" class="ml-2 text-xs text-indigo-500 hover:underline">+ New</a>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex gap-3">
+              <a href="/clients/{{ client.id }}" class="text-xs text-indigo-600 hover:underline">View</a>
+              <a href="/clients/{{ client.id }}/edit" class="text-xs text-slate-500 hover:underline">Edit</a>
+              <a href="/projects/new?client_id={{ client.id }}" class="text-xs text-green-600 hover:underline">+ Project</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 text-center">
+    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
+      </svg>
+    </div>
+    <h3 class="text-slate-700 font-semibold mb-2">No clients yet</h3>
+    <p class="text-slate-500 text-sm mb-4">Add your first client to get started with assessments.</p>
+    <a href="/clients/new" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+      Add Client
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

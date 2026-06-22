@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CyberAudit Pro{% endblock %}
+{% block content %}
+<div class="p-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-slate-900">Dashboard</h1>
+    <p class="text-slate-500 text-sm mt-1">Overview of your assessment work</p>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Clients</div>
+      <div class="text-3xl font-bold text-slate-900">{{ client_count }}</div>
+      <a href="/clients/" class="text-indigo-600 text-xs hover:underline mt-1 inline-block">View all →</a>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Projects</div>
+      <div class="text-3xl font-bold text-slate-900">{{ project_count }}</div>
+      <a href="/projects/" class="text-indigo-600 text-xs hover:underline mt-1 inline-block">View all →</a>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Total Findings</div>
+      <div class="text-3xl font-bold text-slate-900">{{ finding_count }}</div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Templates</div>
+      <div class="text-3xl font-bold text-slate-900">{{ template_count }}</div>
+      <a href="/templates/" class="text-indigo-600 text-xs hover:underline mt-1 inline-block">Manage →</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Recent Projects -->
+    <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="font-semibold text-slate-800">Recent Projects</h2>
+        <a href="/projects/new" class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 font-medium transition-colors">
+          + New Project
+        </a>
+      </div>
+      <div class="divide-y divide-slate-100">
+        {% if recent_projects %}
+          {% for project in recent_projects %}
+          <div class="px-6 py-4 hover:bg-slate-50 transition-colors">
+            <div class="flex items-start justify-between">
+              <div>
+                <a href="/projects/{{ project.id }}" class="font-medium text-slate-900 hover:text-indigo-600 text-sm">{{ project.name }}</a>
+                <div class="text-xs text-slate-500 mt-0.5">{{ project.client.name }} {% if project.template %}&middot; {{ project.template.framework }}{% endif %}</div>
+              </div>
+              <div class="flex items-center gap-2">
+                {% if project.overall_score is not none %}
+                <div class="text-xs font-semibold {% if project.overall_score >= 80 %}text-green-600{% elif project.overall_score >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                  {{ "%.0f"|format(project.overall_score) }}%
+                </div>
+                {% endif %}
+                <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                  {% if project.status == 'complete' %}bg-green-100 text-green-700
+                  {% elif project.status == 'review' %}bg-blue-100 text-blue-700
+                  {% elif project.status == 'in_progress' %}bg-yellow-100 text-yellow-700
+                  {% else %}bg-slate-100 text-slate-600{% endif %}">
+                  {{ project.status | replace('_', ' ') | title }}
+                </span>
+              </div>
+            </div>
+            <div class="flex gap-3 mt-2">
+              <a href="/assessments/{{ project.id }}" class="text-xs text-indigo-600 hover:underline">Assessment</a>
+              <a href="/findings/{{ project.id }}" class="text-xs text-indigo-600 hover:underline">Findings</a>
+              <a href="/reports/{{ project.id }}" class="text-xs text-indigo-600 hover:underline">Reports</a>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="px-6 py-12 text-center">
+            <div class="text-slate-400 text-sm">No projects yet.</div>
+            <a href="/projects/new" class="text-indigo-600 text-sm hover:underline mt-1 inline-block">Create your first project →</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Findings by Severity -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+      <div class="px-6 py-4 border-b border-slate-100">
+        <h2 class="font-semibold text-slate-800">Findings by Severity</h2>
+      </div>
+      <div class="p-6 space-y-3">
+        {% set sev_info = [
+          ('critical', 'Critical', 'bg-red-500'),
+          ('high', 'High', 'bg-orange-500'),
+          ('medium', 'Medium', 'bg-yellow-500'),
+          ('low', 'Low', 'bg-blue-500'),
+          ('informational', 'Informational', 'bg-gray-400'),
+        ] %}
+        {% set total_findings = sev_counts.values() | sum %}
+        {% for key, label, color in sev_info %}
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="font-medium text-slate-700">{{ label }}</span>
+            <span class="text-slate-500">{{ sev_counts.get(key, 0) }}</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2">
+            <div class="{{ color }} h-2 rounded-full transition-all"
+                 style="width: {{ ((sev_counts.get(key, 0) / total_findings * 100) if total_findings > 0 else 0) | round(1) }}%"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="px-6 pb-6 pt-2 border-t border-slate-100 mt-2">
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Quick Start</div>
+        <div class="space-y-2">
+          <a href="/clients/new" class="flex items-center gap-2 text-sm text-slate-700 hover:text-indigo-600 transition-colors">
+            <span class="w-6 h-6 bg-indigo-50 rounded flex items-center justify-center text-indigo-600 text-xs">+</span>
+            New Client
+          </a>
+          <a href="/projects/new" class="flex items-center gap-2 text-sm text-slate-700 hover:text-indigo-600 transition-colors">
+            <span class="w-6 h-6 bg-indigo-50 rounded flex items-center justify-center text-indigo-600 text-xs">+</span>
+            New Assessment Project
+          </a>
+          <a href="/templates/" class="flex items-center gap-2 text-sm text-slate-700 hover:text-indigo-600 transition-colors">
+            <span class="w-6 h-6 bg-slate-50 rounded flex items-center justify-center text-slate-500 text-xs">☰</span>
+            Browse Templates
+          </a>
+          <a href="/settings/" class="flex items-center gap-2 text-sm text-slate-700 hover:text-indigo-600 transition-colors">
+            <span class="w-6 h-6 bg-slate-50 rounded flex items-center justify-center text-slate-500 text-xs">⚙</span>
+            Consultant Settings
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Data Notice -->
+  <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 flex items-start gap-3">
+    <svg class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+    </svg>
+    <div class="text-xs text-blue-700">
+      <strong>Data Privacy Reminder:</strong> All assessment data is stored locally on this device.
+      Client data is confidential — secure your device and limit access to authorized personnel only.
+      Export files containing client data should be handled with appropriate care.
+    </div>
+  </div>
+</div>
+{% endblock %}

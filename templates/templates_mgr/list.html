@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Templates — CyberAudit Pro{% endblock %}
+{% block content %}
+<div class="p-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Assessment Templates</h1>
+      <p class="text-slate-500 text-sm mt-1">{{ template_list | length }} templates available</p>
+    </div>
+    <form method="post" action="/templates/import" enctype="multipart/form-data"
+          x-data="{}" class="flex gap-2">
+      <label class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors cursor-pointer">
+        Import JSON
+        <input type="file" name="file" accept=".json" class="hidden" @change="$el.closest('form').submit()">
+      </label>
+    </form>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    {% for tmpl in template_list %}
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+      <div class="p-5">
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              {% if tmpl.is_builtin %}
+              <span class="text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-semibold">Built-in</span>
+              {% else %}
+              <span class="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Custom</span>
+              {% endif %}
+              {% if tmpl.version %}
+              <span class="text-xs text-slate-400">v{{ tmpl.version }}</span>
+              {% endif %}
+            </div>
+            <h3 class="font-semibold text-slate-900 leading-tight">{{ tmpl.name }}</h3>
+            {% if tmpl.framework %}
+            <div class="text-xs text-slate-500 mt-0.5">{{ tmpl.framework }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if tmpl.description %}
+        <p class="text-xs text-slate-600 leading-relaxed line-clamp-2 mb-3">{{ tmpl.description }}</p>
+        {% endif %}
+
+        {% if tmpl.category %}
+        <div class="mb-3">
+          <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{{ tmpl.category }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Control count -->
+        {% if tmpl.template_data %}
+        {% set ctrl_count = namespace(n=0) %}
+        {% for fn in tmpl.template_data.get('functions', []) %}
+          {% for cat in fn.get('categories', []) %}
+            {% set ctrl_count.n = ctrl_count.n + cat.get('controls', []) | length %}
+          {% endfor %}
+        {% endfor %}
+        {% for dom in tmpl.template_data.get('domains', []) %}
+          {% set ctrl_count.n = ctrl_count.n + dom.get('controls', []) | length %}
+        {% endfor %}
+        {% set ctrl_count.n = ctrl_count.n + tmpl.template_data.get('controls', []) | length %}
+        <div class="text-xs text-slate-400 mb-4">{{ ctrl_count.n }} controls</div>
+        {% endif %}
+
+        <div class="flex gap-2 flex-wrap">
+          <a href="/templates/{{ tmpl.id }}/view"
+             class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1.5 rounded-lg font-medium hover:bg-indigo-100 transition-colors">
+            View Controls
+          </a>
+          <form method="post" action="/templates/{{ tmpl.id }}/duplicate">
+            <button type="submit" class="text-xs bg-slate-50 text-slate-700 px-2.5 py-1.5 rounded-lg font-medium hover:bg-slate-100 transition-colors">
+              Duplicate
+            </button>
+          </form>
+          <a href="/templates/{{ tmpl.id }}/export"
+             class="text-xs bg-slate-50 text-slate-700 px-2.5 py-1.5 rounded-lg font-medium hover:bg-slate-100 transition-colors">
+            Export JSON
+          </a>
+          {% if not tmpl.is_builtin %}
+          <form method="post" action="/templates/{{ tmpl.id }}/delete"
+                onsubmit="return confirm('Delete this template?')">
+            <button type="submit" class="text-xs text-red-500 hover:text-red-700 px-2 py-1.5 rounded-lg">
+              Delete
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- JSON Template Format Guide -->
+  <div class="mt-8 bg-slate-50 rounded-xl border border-slate-200 p-6">
+    <h2 class="font-semibold text-slate-800 mb-2">Custom Template Format</h2>
+    <p class="text-xs text-slate-500 mb-3">Import your own templates as JSON files. Use the structure below or export an existing template as a starting point.</p>
+    <pre class="text-xs text-slate-700 bg-white rounded-lg border border-slate-200 p-4 overflow-x-auto">{
+  "id": "my_custom_template",
+  "name": "My Custom Assessment",
+  "version": "1.0",
+  "framework": "Custom",
+  "category": "Custom",
+  "description": "Description of this assessment",
+  "functions": [
+    {
+      "id": "DOMAIN1",
+      "name": "Domain Name",
+      "description": "Domain description",
+      "categories": [
+        {
+          "id": "DOMAIN1.CAT1",
+          "name": "Category Name",
+          "controls": [
+            {
+              "id": "DOMAIN1.CAT1-01",
+              "name": "Control name",
+              "question": "Assessment question to ask?",
+              "evidence_guidance": "What evidence to request",
+              "why_it_matters": "Why this control is important",
+              "common_weaknesses": ["Weakness 1", "Weakness 2"],
+              "remediation_guidance": "How to fix",
+              "risk_impact": "Risk if not addressed",
+              "related_frameworks": ["NIST CSF GV.OC-01"],
+              "scoring_guidance": {"0": "Not assessed", "4": "Fully compliant"}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}</pre>
+  </div>
+</div>
+{% endblock %}
