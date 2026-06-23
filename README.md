@@ -1,47 +1,56 @@
 # CyberAudit Pro
 
-A professional cybersecurity assessment and reporting platform for consultants. CyberAudit Pro guides auditors through structured control assessments against industry frameworks, tracks findings with severity ratings, and generates polished Word/PDF deliverable reports — all from a local web interface that runs without an internet connection.
+## Overview
+A local-first cybersecurity assessment and reporting platform for consultants and security practitioners. CyberAudit Pro guides auditors through structured control assessments against industry frameworks, tracks findings with severity ratings and remediation effort scores, and generates polished Word and PDF deliverable reports — all from a browser-based interface that runs entirely on the local machine with no internet connection required.
 
-![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python) ![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi) ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0%2B-red) ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows) ![License](https://img.shields.io/badge/License-MIT-green)
+## Problem It Solves
+Cybersecurity assessments are often conducted using a patchwork of spreadsheets, Word documents, and manual copy-paste — making it time-consuming to produce consistent, professional deliverables and easy to lose track of finding status across engagements. CyberAudit Pro replaces that workflow with a structured, database-backed platform that enforces consistency across every assessment, generates client-ready reports in one click, and keeps all engagement data local and under the practitioner's control.
 
-## Features
-
+## Key Features
 - **Multi-framework assessments** — built-in templates for NIST CSF 2.0, CIS Controls v8, and a Small Business Essentials profile; import custom JSON templates
-- **Guided assessment wizard** — step through every control, mark compliance status (Compliant / Partial / Non-Compliant / N/A), and capture evidence notes
+- **Guided assessment wizard** — step through every control, mark compliance (Compliant / Partial / Non-Compliant / N/A), and capture evidence notes
 - **Automated scoring engine** — computes a 0–100 maturity score per category and overall, mapped to five maturity levels (Initial → Optimizing)
-- **Finding management** — create, edit, and prioritize findings with severity (Critical → Informational), likelihood/impact scoring, remediation effort, and linked control references
-- **Professional report generation** — one-click export to `.docx` (Word) and `.pdf` with executive summary, risk matrix, per-finding detail tables, and remediation roadmap
-- **Client & project CRM** — manage multiple clients, contacts, and concurrent audit projects
-- **Local-first architecture** — runs entirely on `127.0.0.1:8765`; all data stored in SQLite; no cloud dependency
-- **Portable executable** — ships as a single `.exe` built with PyInstaller; no Python installation required for end users
+- **Finding management** — severity (Critical → Informational), likelihood/impact scoring, remediation effort, and linked control references
+- **One-click report export** — `.docx` and `.pdf` with executive summary, risk matrix, per-finding tables, and remediation roadmap
+- **Client & project CRM** — manage multiple clients, contacts, and concurrent audit engagements
+- **Local-first architecture** — runs on `127.0.0.1:8765`; all data in SQLite; no cloud dependency
+- **Portable executable** — ships as a single `.exe` via PyInstaller; no Python installation required on the end-user machine
 
-## Screenshots
+## Technologies Used
+- Python 3.11+
+- FastAPI + Uvicorn (web framework and server)
+- Jinja2 (HTML templating)
+- SQLite via SQLAlchemy 2.0 (local database)
+- Pydantic v2 (data validation)
+- python-docx + ReportLab (Word and PDF report generation)
+- PyInstaller (portable executable build)
 
-> Run the app and visit `http://127.0.0.1:8765` to see it in action.
+## Example Use Case
+A security consultant is engaged to assess a mid-sized manufacturer against NIST CSF 2.0. They open CyberAudit Pro, create a new project for the client, and work through the 100+ controls over two days of interviews and documentation review — marking each control compliant or non-compliant and attaching evidence notes. At the end of the engagement, they click Export and hand the client a branded Word report with an executive summary, a color-coded risk matrix, and a prioritized remediation roadmap — work that previously took an additional half-day of formatting.
 
-## Quick Start (from source)
+## How to Run
 
 **Requirements:** Python 3.11 or later
 
 ```batch
-# 1. Install dependencies and create virtual environment
+# First-time setup — creates virtual environment and installs dependencies
 setup.bat
 
-# 2. Start the application
+# Launch the application
 run.bat
 ```
 
-The app opens in your default browser at `http://127.0.0.1:8765`.
+Open your browser to `http://127.0.0.1:8765`.
 
-## Build a Standalone Executable
+**Build a standalone executable (no Python required on target machine):**
 
 ```batch
 build.bat
 ```
 
-Output: `dist\CyberAuditPro\CyberAuditPro.exe` — zip the entire `dist\CyberAuditPro\` folder to distribute.
+Output: `dist\CyberAuditPro\CyberAuditPro.exe`
 
-## Manual Setup (without the batch scripts)
+**Manual setup (without batch scripts):**
 
 ```bash
 python -m venv venv
@@ -50,73 +59,34 @@ pip install -r requirements.txt
 python main.py
 ```
 
-## Tech Stack
+## Example Output
 
-| Layer | Technology |
-|-------|-----------|
-| Web framework | FastAPI + Uvicorn |
-| Templating | Jinja2 |
-| Database | SQLite via SQLAlchemy 2.0 |
-| Data validation | Pydantic v2 |
-| Report generation | python-docx, ReportLab |
-| Build/distribution | PyInstaller |
+**Maturity scoring output:**
 
-## Project Structure
-
-```
-cyberaudit/
-├── main.py                         # Application entry point
-├── cyberaudit.spec                 # PyInstaller build spec
-├── requirements.txt
-├── setup.bat                       # First-run setup script
-├── run.bat                         # Launch script
-├── build.bat                       # Build executable
-├── app/
-│   ├── config.py                   # Paths, settings, version
-│   ├── database.py                 # SQLAlchemy engine + session
-│   ├── models.py                   # ORM models
-│   ├── api/                        # FastAPI routers
-│   │   ├── clients.py
-│   │   ├── projects.py
-│   │   ├── assessments.py
-│   │   ├── findings.py
-│   │   ├── reports.py
-│   │   ├── templates_api.py
-│   │   ├── settings.py
-│   │   └── dashboard.py
-│   └── services/
-│       ├── scoring.py              # Maturity scoring engine
-│       ├── report_generator.py     # DOCX/PDF export
-│       └── template_manager.py     # Assessment template loader
-├── templates/                      # Jinja2 HTML templates
-├── static/                         # CSS assets
-└── data/
-    └── assessment_templates/       # Built-in framework JSON files
-        ├── nist_csf_2_0.json
-        ├── cis_controls_v8.json
-        └── small_business.json
-```
-
-## Assessment Frameworks
-
-| Framework | Controls | Description |
-|-----------|----------|-------------|
-| NIST CSF 2.0 | ~100 | NIST Cybersecurity Framework v2.0 — Govern, Identify, Protect, Detect, Respond, Recover |
-| CIS Controls v8 | 153 | Center for Internet Security Critical Security Controls |
-| Small Business | ~30 | Streamlined profile for SMB environments |
-
-## Maturity Model
-
-Scores are computed on a 0–100 scale across all assessed controls:
-
-| Score | Level |
-|-------|-------|
+| Score Range | Maturity Level |
+|---|---|
 | 0–19 | Level 1 — Initial |
 | 20–39 | Level 2 — Developing |
 | 40–59 | Level 3 — Defined |
 | 60–79 | Level 4 — Managed |
 | 80–100 | Level 5 — Optimizing |
 
-## License
+**Generated report includes:**
+- Executive summary with overall maturity score
+- Per-category score breakdown (Identify, Protect, Detect, Respond, Recover)
+- Risk matrix (severity × likelihood heatmap)
+- Findings table with control reference, severity, and remediation effort
+- Prioritized remediation roadmap
 
-MIT — see [LICENSE](LICENSE) for details.
+## Security Notes
+- All data is stored locally in SQLite — no data leaves the machine
+- The application binds only to `127.0.0.1` — it is not accessible from the network by default
+- Do not expose the application on `0.0.0.0` or behind a reverse proxy without adding authentication
+- Assessment data may contain sensitive client information — protect the SQLite database file accordingly and exclude it from version control (`.gitignore`)
+- Authorized use only — intended for use during authorized security assessments
+
+## Lessons Learned
+- FastAPI's automatic OpenAPI docs (`/docs`) are useful during development but should be disabled in any deployment that handles sensitive client data
+- SQLAlchemy 2.0's `Session.execute()` with explicit `select()` statements is more predictable than the 1.x-style `Session.query()` when working with async-adjacent patterns, even in a synchronous app
+- Generating `.docx` output with `python-docx` requires careful table and paragraph style management — building a base template document first and populating it programmatically produces far more consistent results than constructing the document entirely from code
+- Pydantic v2's `model_validator` and `field_validator` replace the v1 `@validator` decorator; migrating early in the project saved significant refactoring effort later
